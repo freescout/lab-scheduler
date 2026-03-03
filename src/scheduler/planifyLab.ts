@@ -1,6 +1,7 @@
 import {
   Equipment,
   LabData,
+  Metrics,
   PlanifyResult,
   Priority,
   Sample,
@@ -64,7 +65,6 @@ export function planifyLab(data: LabData): PlanifyResult {
 
   //Iterate over samples and assign resources
   const schedule: ScheduleEntry[] = [];
-  let conflicts = 0;
 
   for (const sample of sortedSamples) {
     let bestStartTime: number | null = null;
@@ -76,14 +76,14 @@ export function planifyLab(data: LabData): PlanifyResult {
     for (const technician of technicians) {
       if (!isTechnicianCompatible(technician, sample)) continue;
 
-      for (const equipment of data.equipment) {
-        if (!isEquipmentCompatible(equipment, sample)) continue;
-
-        const technicianAvailable = technicianAvailableAt.get(technician.id)!;
-        const equipmentAvailable = equipmentAvailableAt.get(equipment.id)!;
+      for (const equip of equipment) {
+        if (!isEquipmentCompatible(equip, sample)) continue;
 
         const technicianStart = toMinutes(technician.startTime);
         const technicianEnd = toMinutes(technician.endTime);
+
+        const technicianAvailable = technicianAvailableAt.get(technician.id)!;
+        const equipmentAvailable = equipmentAvailableAt.get(equip.id)!;
 
         const candidateStart = Math.max(
           sampleArrival,
@@ -99,7 +99,7 @@ export function planifyLab(data: LabData): PlanifyResult {
         if (bestStartTime === null || candidateStart < bestStartTime) {
           bestStartTime = candidateStart;
           selectedTechnicianId = technician.id;
-          selectedEquipmentId = equipment.id;
+          selectedEquipmentId = equip.id;
         }
       }
     }
@@ -118,19 +118,41 @@ export function planifyLab(data: LabData): PlanifyResult {
         endTime: toHHMM(endTime),
         priority: sample.priority,
       });
-    } else {
-      conflicts++;
     }
   }
 
   // 5. Compute metrics
+
+  let totalTime = 0;
+  let efficiency = 0;
+
+  if (schedule.length > 0) {
+    const totalAnalysisTime = schedule.reduce((sum, entry) => {
+      return sum + (toMinutes(entry.endTime) - toMinutes(entry.startTime));
+    }, 0);
+
+    const allStartTimes = schedule.map((e) => toMinutes(e.startTime));
+    const allEndTimes = schedule.map((e) => toMinutes(e.endTime));
+
+    const firstStart = Math.min(...allStartTimes);
+    const lastEnd = Math.max(...allEndTimes);
+
+    totalTime = lastEnd - firstStart;
+    efficiency = totalTime > 0 ? (totalAnalysisTime / totalTime) * 100 : 0;
+  }
+
+  const conflicts = sortedSamples.length - schedule.length;
+
+  const metrics: Metrics = {
+    totalTime,
+    efficiency: Math.round(efficiency * 10) / 10,
+    conflicts,
+  };
+
   // 6. Return final result
+
   return {
     schedule,
-    metrics: {
-      totalTime: 0,
-      efficiency: 0,
-      conflicts: 0,
-    },
+    metrics,
   };
 }
