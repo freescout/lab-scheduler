@@ -128,23 +128,17 @@ export function planifyLab(data: LabData): PlanifyResult {
 
   if (schedule.length > 0) {
     const totalAnalysisTime = schedule.reduce((sum, entry) => {
-      return sum + (toMinutes(entry.endTime) - toMinutes(entry.startTime));
+      const duration = toMinutes(entry.endTime) - toMinutes(entry.startTime);
+      return sum + duration;
     }, 0);
 
-    const allStartTimes = schedule.map((e) => toMinutes(e.startTime));
-    const allEndTimes = schedule.map((e) => toMinutes(e.endTime));
+    const firstStart = Math.min(...schedule.map((e) => toMinutes(e.startTime)));
 
-    const firstStart = Math.min(...allStartTimes);
-    const lastEnd = Math.max(...allEndTimes);
+    const lastEnd = Math.max(...schedule.map((e) => toMinutes(e.endTime)));
 
     totalTime = lastEnd - firstStart;
-    const technicianCount = technicians.length;
 
-    const totalCapacity = technicianCount * totalTime;
-
-    efficiency =
-      totalCapacity > 0 ? (totalAnalysisTime / totalCapacity) * 100 : 0;
-    //    efficiency = totalTime > 0 ? (totalAnalysisTime / totalTime) * 100 : 0;
+    efficiency = totalTime > 0 ? (totalAnalysisTime / totalTime) * 100 : 0;
   }
 
   const conflicts = sortedSamples.length - schedule.length;
