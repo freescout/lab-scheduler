@@ -138,7 +138,13 @@ export function planifyLab(data: LabData): PlanifyResult {
     const lastEnd = Math.max(...allEndTimes);
 
     totalTime = lastEnd - firstStart;
-    efficiency = totalTime > 0 ? (totalAnalysisTime / totalTime) * 100 : 0;
+    const technicianCount = technicians.length;
+
+    const totalCapacity = technicianCount * totalTime;
+
+    efficiency =
+      totalCapacity > 0 ? (totalAnalysisTime / totalCapacity) * 100 : 0;
+    //    efficiency = totalTime > 0 ? (totalAnalysisTime / totalTime) * 100 : 0;
   }
 
   const conflicts = sortedSamples.length - schedule.length;
