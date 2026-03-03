@@ -1,4 +1,13 @@
 {
   "name": "lab-scheduler",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "ts-node src/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
   "packageManager": "yarn@4.6.0"
 }
