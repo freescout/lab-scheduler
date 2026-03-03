@@ -6,7 +6,13 @@
  * Convert "HH:MM" string to total minutes.
  */
 export function toMinutes(time: string): number {
-  const [hours, minutes] = time.split(":").map(Number);
+  const parts = time.split(":");
+
+  if (parts.length !== 2) {
+    throw new Error(`Invalid time format: ${time}`);
+  }
+
+  const [hours, minutes] = parts.map(Number);
 
   if (
     Number.isNaN(hours) ||
