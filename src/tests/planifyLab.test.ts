@@ -21,6 +21,7 @@ describe("planifyLab", () => {
       expect(e.priority).toBe("URGENT");
       expect(e.duration).toBe(30);
       expect(e.cleaningRequired).toBe(true);
+      expect(e.lunchBreak).toBe("12:00-13:00");
 
       expect(result.metrics.totalTime).toBe(30);
       expect(result.metrics.conflicts).toBe(0);
@@ -186,6 +187,8 @@ describe("Intermediate - Lunch break", () => {
     expect(toMinutes(entry.startTime)).toBeGreaterThanOrEqual(
       toMinutes("13:00"),
     );
+    expect(entry.lunchBreak).toBe("12:00-13:00");
+    expect(result.metrics.lunchInterruptions).toBe(1);
   });
 
   it("should not adjust start time if analysis starts after lunch ends", () => {
@@ -330,5 +333,52 @@ describe("Intermediate - Priority respect rate", () => {
     expect(toMinutes(statEntry.startTime)).toBeLessThan(
       toMinutes(routineEntry.startTime),
     );
+  });
+});
+
+describe("Intermediate - Metadata", () => {
+  it("should return metadata with lunchBreaks and constraintsApplied", () => {
+    const data: LabData = {
+      samples: [
+        {
+          id: "S001",
+          type: "BLOOD",
+          analysisType: "Bilan lipidique",
+          priority: "ROUTINE",
+          analysisTime: 30,
+          arrivalTime: "11:50",
+        },
+      ],
+      technicians: [
+        {
+          id: "T001",
+          name: "Alice",
+          speciality: ["BLOOD"],
+          efficiency: 1.0,
+          startTime: "08:00",
+          endTime: "17:00",
+          lunchBreak: "12:00-13:00",
+        },
+      ],
+      equipment: [
+        {
+          id: "E001",
+          name: "Analyseur",
+          type: "BLOOD",
+          compatibleTypes: ["Bilan lipidique"],
+          available: true,
+          cleaningTime: 0,
+        },
+      ],
+    };
+
+    const result = planifyLab(data);
+
+    expect(result.metadata).toBeDefined();
+    expect(result.metadata.lunchBreaks).toHaveLength(1);
+    expect(result.metadata.lunchBreaks[0].technicianId).toBe("T001");
+    expect(result.metadata.lunchBreaks[0].planned).toBe("12:00-13:00");
+    expect(result.metadata.constraintsApplied).toContain("priority_management");
+    expect(result.metadata.constraintsApplied).toContain("lunch_breaks");
   });
 });
