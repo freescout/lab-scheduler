@@ -252,7 +252,7 @@ export function planifyLab(data: LabData): PlanifyResult {
 
   const technicianUtilization =
     totalShiftCapacity > 0
-      ? Math.round((totalWorkTime / totalShiftCapacity) * 100 * 10) / 10
+      ? Math.round((totalWorkTime / totalShiftCapacity) * 1000) / 10
       : 0;
 
   const efficiency =
@@ -262,12 +262,31 @@ export function planifyLab(data: LabData): PlanifyResult {
 
   const conflicts = sortedSamples.length - schedule.length;
 
+  const waitTimes: Record<Priority, number[]> = {
+    STAT: [],
+    URGENT: [],
+    ROUTINE: [],
+  };
+
+  for (const entry of schedule) {
+    const sample = samples.find((s) => s.id === entry.sampleId);
+    if (!sample) continue;
+    const wait = toMinutes(entry.startTime) - toMinutes(sample.arrivalTime);
+    waitTimes[entry.priority].push(Math.max(0, wait));
+  }
+
+  const averageWaitTime = {
+    STAT: computeAverage(waitTimes.STAT),
+    URGENT: computeAverage(waitTimes.URGENT),
+    ROUTINE: computeAverage(waitTimes.ROUTINE),
+  };
+
   const metrics: Metrics = {
     totalTime,
     efficiency: Math.round(efficiency * 10) / 10,
     conflicts,
     technicianUtilization,
-    averageWaitTime: { STAT: 0, URGENT: 0, ROUTINE: 0 },
+    averageWaitTime,
     priorityRespectRate: 0,
     parallelAnalyses: 0,
     lunchInterruptions,
