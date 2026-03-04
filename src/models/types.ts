@@ -9,6 +9,12 @@ export type Speciality =
   | "MICROBIOLOGY"
   | "IMMUNOLOGY"
   | "GENETICS";
+export type EquipmentType =
+  | "BLOOD"
+  | "CHEMISTRY"
+  | "MICROBIOLOGY"
+  | "IMMUNOLOGY"
+  | "GENETICS";
 
 // ==============================
 // Input Structures
@@ -21,7 +27,7 @@ export interface Sample {
   priority: Priority;
   analysisTime: number;
   arrivalTime: string;
-  patientId: string;
+  patientId?: string;
 }
 
 export interface Technician {
@@ -37,7 +43,7 @@ export interface Technician {
 export interface Equipment {
   id: string;
   name: string;
-  type: SampleType;
+  type: EquipmentType;
   compatibleTypes: string[];
   available: boolean;
   maintenanceWindow?: string;
@@ -71,15 +77,15 @@ export interface Metrics {
   totalTime: number;
   efficiency: number;
   conflicts: number;
-  averageWaitTime?: {
+  averageWaitTime: {
     STAT: number;
     URGENT: number;
     ROUTINE: number;
   };
-  technicianUtilization?: number;
-  priorityRespectRate?: number;
-  parallelAnalyses?: number;
-  lunchInterruptions?: number;
+  technicianUtilization: number;
+  priorityRespectRate: number;
+  parallelAnalyses: number;
+  lunchInterruptions: number;
 }
 
 export interface PlanifyResult {
