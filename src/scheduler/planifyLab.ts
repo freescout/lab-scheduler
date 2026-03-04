@@ -281,13 +281,49 @@ export function planifyLab(data: LabData): PlanifyResult {
     ROUTINE: computeAverage(waitTimes.ROUTINE),
   };
 
+  // --- Priority Respect Rate ---
+  // For each high-priority sample A, check if a lower-priority sample B
+  // arrived later but started earlier → A is violated
+  const sampleMap = new Map(samples.map((s) => [s.id, s]));
+  const violatedSamples = new Set<string>();
+
+  for (const high of schedule) {
+    const highSample = sampleMap.get(high.sampleId);
+    if (!highSample) continue;
+
+    for (const low of schedule) {
+      if (high.sampleId === low.sampleId) continue;
+
+      const lowSample = sampleMap.get(low.sampleId);
+      if (!lowSample) continue;
+
+      const isHigherPriority =
+        PRIORITY_WEIGHT[high.priority] < PRIORITY_WEIGHT[low.priority];
+      const arrivedFirst =
+        toMinutes(highSample.arrivalTime) <= toMinutes(lowSample.arrivalTime);
+      const startedLater = toMinutes(high.startTime) > toMinutes(low.startTime);
+
+      if (isHigherPriority && arrivedFirst && startedLater) {
+        violatedSamples.add(high.sampleId);
+      }
+    }
+  }
+
+  // Returns 0 when nothing is scheduled (no ordering occurred)
+  const priorityRespectRate =
+    schedule.length > 0
+      ? Math.round(
+          ((schedule.length - violatedSamples.size) / schedule.length) * 1000,
+        ) / 10
+      : 0;
+
   const metrics: Metrics = {
     totalTime,
     efficiency: Math.round(efficiency * 10) / 10,
     conflicts,
     technicianUtilization,
     averageWaitTime,
-    priorityRespectRate: 0,
+    priorityRespectRate,
     parallelAnalyses: 0,
     lunchInterruptions,
   };
