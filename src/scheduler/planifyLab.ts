@@ -6,8 +6,10 @@ import {
   Priority,
   Sample,
   ScheduleEntry,
+  Speciality,
   Technician,
 } from "../models/types";
+import { computeAverage } from "../utils/math";
 import { toHHMM, toMinutes } from "../utils/time";
 
 // Lower number = higher priority
@@ -30,10 +32,11 @@ function sortSamples(samples: Sample[]): Sample[] {
 function isTechnicianCompatible(
   technician: Technician,
   sample: Sample,
+  equip: Equipment,
 ): boolean {
   return (
     technician.speciality.includes("GENERAL") ||
-    technician.speciality.some((s) => s === sample.type)
+    technician.speciality.includes(equip.type as Speciality)
   );
 }
 
@@ -120,14 +123,14 @@ export function planifyLab(data: LabData): PlanifyResult {
     const sampleArrival = toMinutes(sample.arrivalTime);
 
     for (const technician of technicians) {
-      if (!isTechnicianCompatible(technician, sample)) continue;
-
       const adjustedDuration = Math.round(
         sample.analysisTime / technician.efficiency,
       );
 
       for (const equip of equipment) {
         if (!isEquipmentCompatible(equip, sample)) continue;
+
+        if (!isTechnicianCompatible(technician, sample, equip)) continue;
 
         const technicianStart = toMinutes(technician.startTime);
         const technicianEnd = toMinutes(technician.endTime);
