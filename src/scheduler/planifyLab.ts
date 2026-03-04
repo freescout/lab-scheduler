@@ -1,6 +1,8 @@
 import {
   Equipment,
   LabData,
+  LunchBreakRecord,
+  Metadata,
   Metrics,
   PlanifyResult,
   Priority,
@@ -68,7 +70,7 @@ function adjustForLunchBreak(
   }
 
   // Case 3: overlap → push start to after lunch
-  return { start: lunchEnd, lunchInterrupted: false };
+  return { start: lunchEnd, lunchInterrupted: true };
 }
 
 function isInMaintenance(
@@ -113,6 +115,7 @@ export function planifyLab(data: LabData): PlanifyResult {
   //Iterate over samples and assign resources
   const schedule: ScheduleEntry[] = [];
   let lunchInterruptions = 0;
+  const technicianLunchActual = new Map<string, string>();
 
   for (const sample of sortedSamples) {
     let bestStartTime: number | null = null;
@@ -152,7 +155,6 @@ export function planifyLab(data: LabData): PlanifyResult {
           technician.lunchBreak,
         );
         candidateStart = adjustedStart;
-
         if (equip.maintenanceWindow) {
           const [maintStart, maintEnd] = equip.maintenanceWindow
             .split("-")
@@ -185,19 +187,46 @@ export function planifyLab(data: LabData): PlanifyResult {
     ) {
       const endTime = bestStartTime + selectedDuration;
 
-      technicianAvailableAt.set(selectedTechnicianId, endTime);
-
       const selectedEquip = equipment.find(
         (e) => e.id === selectedEquipmentId,
       )!;
+      const selectedTech = technicians.find(
+        (t) => t.id === selectedTechnicianId,
+      )!;
+
+      // Check lunch interruption on confirmed slot only
+      const rawStart = Math.max(
+        toMinutes(sample.arrivalTime),
+        technicianAvailableAt.get(selectedTechnicianId)!,
+        equipmentAvailableAt.get(selectedEquipmentId)!,
+        toMinutes(selectedTech.startTime),
+      );
+      const { lunchInterrupted } = adjustForLunchBreak(
+        rawStart,
+        selectedDuration,
+        selectedTech.lunchBreak,
+      );
+      if (lunchInterrupted) {
+        lunchInterruptions++;
+        const [lunchStart, lunchEnd] = selectedTech.lunchBreak
+          .split("-")
+          .map(toMinutes);
+        const lunchDuration = lunchEnd - lunchStart;
+        const actualLunchStart = toHHMM(endTime);
+        const actualLunchEnd = toHHMM(
+          toMinutes(actualLunchStart) + lunchDuration,
+        );
+        technicianLunchActual.set(
+          selectedTechnicianId,
+          `${actualLunchStart}-${actualLunchEnd}`,
+        );
+      }
+
+      technicianAvailableAt.set(selectedTechnicianId, endTime);
       equipmentAvailableAt.set(
         selectedEquipmentId,
         endTime + selectedEquip.cleaningTime,
       );
-
-      const selectedTech = technicians.find(
-        (t) => t.id === selectedTechnicianId,
-      )!;
 
       schedule.push({
         sampleId: sample.id,
@@ -210,6 +239,7 @@ export function planifyLab(data: LabData): PlanifyResult {
         efficiency: selectedTech.efficiency,
         analysisType: sample.analysisType,
         cleaningRequired: selectedEquip.cleaningTime > 0,
+        lunchBreak: selectedTech.lunchBreak ?? null,
       });
     }
   }
@@ -230,6 +260,10 @@ export function planifyLab(data: LabData): PlanifyResult {
         priorityRespectRate: 0,
         parallelAnalyses: 0,
         lunchInterruptions: 0,
+      },
+      metadata: {
+        lunchBreaks: [],
+        constraintsApplied: [],
       },
     };
   }
@@ -367,10 +401,36 @@ export function planifyLab(data: LabData): PlanifyResult {
     lunchInterruptions,
   };
 
+  const lunchBreaks: LunchBreakRecord[] = technicians
+    .filter((tech) => technicianWorkTime.has(tech.id)) // ← only who worked
+    .map((tech) => ({
+      technicianId: tech.id,
+      planned: tech.lunchBreak,
+      actual: technicianLunchActual.get(tech.id) ?? tech.lunchBreak,
+      reason: technicianLunchActual.has(tech.id)
+        ? "adjusted for optimization"
+        : "normal",
+    }));
+
+  const metadata: Metadata = {
+    lunchBreaks,
+    constraintsApplied: [
+      "priority_management",
+      "specialization_matching",
+      "lunch_breaks",
+      "equipment_compatibility",
+      "maintenance_avoidance",
+      "cleaning_delays",
+      "efficiency_coefficients",
+      "parallelism_optimization",
+    ],
+  };
+
   // 6. Return final result
 
   return {
     schedule,
     metrics,
+    metadata,
   };
 }

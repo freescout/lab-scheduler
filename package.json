@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "ts-node src/index.ts",
+    "generate": "ts-node src/generateOutput.ts",
     "lint": "eslint src --ext .ts",
     "test": "jest",
     "test:watch": "jest --watch",

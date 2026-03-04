@@ -71,6 +71,7 @@ export interface ScheduleEntry {
   efficiency?: number;
   cleaningRequired?: boolean;
   analysisType?: string;
+  lunchBreak?: string | null;
 }
 
 export interface Metrics {
@@ -88,7 +89,20 @@ export interface Metrics {
   lunchInterruptions: number;
 }
 
+export interface LunchBreakRecord {
+  technicianId: string;
+  planned: string;
+  actual: string;
+  reason: string;
+}
+
+export interface Metadata {
+  lunchBreaks: LunchBreakRecord[];
+  constraintsApplied: string[];
+}
+
 export interface PlanifyResult {
   schedule: ScheduleEntry[];
   metrics: Metrics;
+  metadata: Metadata;
 }
