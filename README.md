@@ -1,5 +1,10 @@
 # Lab Scheduler – Version SIMPLE
 
+## Versions
+
+- SIMPLE version → branch `master`
+- INTERMÉDIAIRE version → branch `feat/intermediate`
+
 ## 📌 Description
 
 Ce projet implémente la version SIMPLE de l’algorithme de planification d’un laboratoire d’analyses.
