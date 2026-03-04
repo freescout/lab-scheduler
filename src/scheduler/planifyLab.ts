@@ -10,6 +10,7 @@ import {
 } from "../models/types";
 import { toHHMM, toMinutes } from "../utils/time";
 
+// Lower number = higher priority
 const PRIORITY_WEIGHT: Record<Priority, number> = {
   STAT: 0,
   URGENT: 1,
@@ -221,6 +222,7 @@ export function planifyLab(data: LabData): PlanifyResult {
     };
   }
 
+  // --- Planning window ---
   const earliestStart = Math.min(
     ...schedule.map((e) => toMinutes(e.startTime)),
   );
@@ -228,6 +230,8 @@ export function planifyLab(data: LabData): PlanifyResult {
   const latestEnd = Math.max(...schedule.map((e) => toMinutes(e.endTime)));
 
   const totalTime = latestEnd - earliestStart;
+
+  // --- Technician work time ---
 
   const technicianWorkTime = new Map<string, number>();
 
@@ -244,6 +248,15 @@ export function planifyLab(data: LabData): PlanifyResult {
     0,
   );
 
+  // Efficiency: avg work time per technician / planning window
+
+  const efficiency =
+    totalTime > 0 && technicians.length > 0
+      ? Math.round((totalWorkTime / (technicians.length * totalTime)) * 1000) /
+        10
+      : 0;
+
+  // Utilization: total work time / total shift capacity
   const totalShiftCapacity = technicians.reduce((sum, tech) => {
     const shiftStart = toMinutes(tech.startTime);
     const shiftEnd = toMinutes(tech.endTime);
@@ -255,13 +268,9 @@ export function planifyLab(data: LabData): PlanifyResult {
       ? Math.round((totalWorkTime / totalShiftCapacity) * 1000) / 10
       : 0;
 
-  const efficiency =
-    totalTime > 0
-      ? (totalWorkTime / (technicians.length * totalTime)) * 100
-      : 0;
-
   const conflicts = sortedSamples.length - schedule.length;
 
+  // --- Average wait time per priority ---
   const waitTimes: Record<Priority, number[]> = {
     STAT: [],
     URGENT: [],
@@ -282,8 +291,6 @@ export function planifyLab(data: LabData): PlanifyResult {
   };
 
   // --- Priority Respect Rate ---
-  // For each high-priority sample A, check if a lower-priority sample B
-  // arrived later but started earlier → A is violated
   const sampleMap = new Map(samples.map((s) => [s.id, s]));
   const violatedSamples = new Set<string>();
 
@@ -317,7 +324,7 @@ export function planifyLab(data: LabData): PlanifyResult {
         ) / 10
       : 0;
 
-  // --- Parallel Analyses
+  // --- Parallel Analyses (sweep line) ---
   const events: { time: number; delta: number }[] = [];
 
   for (const entry of schedule) {
@@ -336,9 +343,10 @@ export function planifyLab(data: LabData): PlanifyResult {
     parallelAnalyses = Math.max(parallelAnalyses, current);
   }
 
+  // --- Final metrics object ---
   const metrics: Metrics = {
     totalTime,
-    efficiency: Math.round(efficiency * 10) / 10,
+    efficiency,
     conflicts,
     technicianUtilization,
     averageWaitTime,
