@@ -382,3 +382,74 @@ describe("Intermediate - Metadata", () => {
     expect(result.metadata.constraintsApplied).toContain("lunch_breaks");
   });
 });
+
+describe("Intermediate - Input Validation", () => {
+  it("should throw if samples array is empty", () => {
+    const data: LabData = {
+      samples: [],
+      technicians: example1.technicians,
+      equipment: example1.equipment,
+    };
+    expect(() => planifyLab(data)).toThrow("Données invalides");
+  });
+
+  it("should throw if technicians array is empty", () => {
+    const data: LabData = {
+      samples: example1.samples,
+      technicians: [],
+      equipment: example1.equipment,
+    };
+    expect(() => planifyLab(data)).toThrow("Données invalides");
+  });
+
+  it("should throw if equipment array is empty", () => {
+    const data: LabData = {
+      samples: example1.samples,
+      technicians: example1.technicians,
+      equipment: [],
+    };
+    expect(() => planifyLab(data)).toThrow("Données invalides");
+  });
+
+  it("should throw if sample has invalid priority", () => {
+    const data: LabData = {
+      ...example1,
+      samples: [{ ...example1.samples[0], priority: "INVALID" as any }],
+    };
+    expect(() => planifyLab(data)).toThrow("Données invalides");
+  });
+});
+
+describe("Intermediate - Input Validation", () => {
+  it("should throw if sample has invalid analysisTime", () => {
+    const data: LabData = {
+      ...example1,
+      samples: [{ ...example1.samples[0], analysisTime: -1 }],
+    };
+    expect(() => planifyLab(data)).toThrow("Données invalides");
+  });
+
+  it("should throw if technician has invalid efficiency", () => {
+    const data: LabData = {
+      ...example1,
+      technicians: [{ ...example1.technicians[0], efficiency: -1 }],
+    };
+    expect(() => planifyLab(data)).toThrow("Données invalides");
+  });
+
+  it("should throw if technician has invalid lunchBreak format", () => {
+    const data: LabData = {
+      ...example1,
+      technicians: [{ ...example1.technicians[0], lunchBreak: "invalid" }],
+    };
+    expect(() => planifyLab(data)).toThrow("Données invalides");
+  });
+
+  it("should throw if equipment has invalid maintenanceWindow format", () => {
+    const data: LabData = {
+      ...example1,
+      equipment: [{ ...example1.equipment[0], maintenanceWindow: "invalid" }],
+    };
+    expect(() => planifyLab(data)).toThrow("Données invalides");
+  });
+});
