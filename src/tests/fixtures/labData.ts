@@ -1,5 +1,3 @@
-// tests/fixtures/labData.ts
-
 import { LabData } from "../../models/types";
 
 export const example1: LabData = {
@@ -7,6 +5,7 @@ export const example1: LabData = {
     {
       id: "S001",
       type: "BLOOD",
+      analysisType: "Hémogramme",
       priority: "URGENT",
       analysisTime: 30,
       arrivalTime: "09:00",
@@ -17,9 +16,11 @@ export const example1: LabData = {
     {
       id: "T001",
       name: "Alice Martin",
-      speciality: "BLOOD",
+      speciality: ["BLOOD"],
+      efficiency: 1.0,
       startTime: "08:00",
       endTime: "17:00",
+      lunchBreak: "12:00-13:00",
     },
   ],
   equipment: [
@@ -27,7 +28,9 @@ export const example1: LabData = {
       id: "E001",
       name: "Analyseur Sang A",
       type: "BLOOD",
+      compatibleTypes: ["Hémogramme"],
       available: true,
+      cleaningTime: 0,
     },
   ],
 };
@@ -37,6 +40,7 @@ export const example2: LabData = {
     {
       id: "S001",
       type: "BLOOD",
+      analysisType: "Hémogramme",
       priority: "URGENT",
       analysisTime: 45,
       arrivalTime: "09:00",
@@ -45,6 +49,7 @@ export const example2: LabData = {
     {
       id: "S002",
       type: "BLOOD",
+      analysisType: "Hémogramme",
       priority: "STAT",
       analysisTime: 30,
       arrivalTime: "09:30",
@@ -55,9 +60,11 @@ export const example2: LabData = {
     {
       id: "T001",
       name: "Alice Martin",
-      speciality: "BLOOD",
+      speciality: ["BLOOD"],
+      efficiency: 1.0,
       startTime: "08:00",
       endTime: "17:00",
+      lunchBreak: "12:00-13:00",
     },
   ],
   equipment: [
@@ -65,7 +72,9 @@ export const example2: LabData = {
       id: "E001",
       name: "Analyseur Sang A",
       type: "BLOOD",
+      compatibleTypes: ["Hémogramme"],
       available: true,
+      cleaningTime: 0,
     },
   ],
 };
@@ -75,6 +84,7 @@ export const example3: LabData = {
     {
       id: "S001",
       type: "BLOOD",
+      analysisType: "Hémogramme",
       priority: "URGENT",
       analysisTime: 60,
       arrivalTime: "09:00",
@@ -83,6 +93,7 @@ export const example3: LabData = {
     {
       id: "S002",
       type: "URINE",
+      analysisType: "ECBU",
       priority: "URGENT",
       analysisTime: 30,
       arrivalTime: "09:15",
@@ -91,6 +102,7 @@ export const example3: LabData = {
     {
       id: "S003",
       type: "BLOOD",
+      analysisType: "Hémogramme",
       priority: "ROUTINE",
       analysisTime: 45,
       arrivalTime: "09:00",
@@ -101,16 +113,20 @@ export const example3: LabData = {
     {
       id: "T001",
       name: "Alice Martin",
-      speciality: "BLOOD",
+      speciality: ["BLOOD"],
+      efficiency: 1.0,
       startTime: "08:00",
       endTime: "17:00",
+      lunchBreak: "12:00-13:00",
     },
     {
       id: "T002",
       name: "Bob Dupont",
-      speciality: "GENERAL",
+      speciality: ["GENERAL"],
+      efficiency: 1.0,
       startTime: "08:00",
       endTime: "17:00",
+      lunchBreak: "12:00-13:00",
     },
   ],
   equipment: [
@@ -118,13 +134,17 @@ export const example3: LabData = {
       id: "E001",
       name: "Analyseur Sang A",
       type: "BLOOD",
+      compatibleTypes: ["Hémogramme"],
       available: true,
+      cleaningTime: 0,
     },
     {
       id: "E002",
       name: "Analyseur Urine A",
       type: "URINE",
+      compatibleTypes: ["ECBU"],
       available: true,
+      cleaningTime: 0,
     },
   ],
 };

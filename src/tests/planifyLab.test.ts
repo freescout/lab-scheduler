@@ -113,9 +113,11 @@ describe("planifyLab", () => {
           {
             id: "T999",
             name: "Wrong Specialist",
-            speciality: "URINE", // incompatible
+            speciality: ["URINE"],
+            efficiency: 1.0,
             startTime: "08:00",
             endTime: "17:00",
+            lunchBreak: "12:00-13:00",
           },
         ],
       };
@@ -148,5 +150,27 @@ describe("planifyLab", () => {
       expect(result.schedule).toHaveLength(0);
       expect(result.metrics.conflicts).toBe(1);
     });
+  });
+});
+
+// ==============================
+// Intermediate - Efficiency
+// ==============================
+describe("Intermediate - Technician efficiency", () => {
+  it("should apply technician efficiency to duration", () => {
+    const data = JSON.parse(JSON.stringify(example1));
+
+    data.samples[0].analysisTime = 60;
+    data.technicians[0].efficiency = 1.2;
+
+    const result = planifyLab(data);
+
+    const entry = result.schedule[0];
+
+    expect(entry.duration).toBe(Math.round(60 / 1.2));
+
+    expect(toMinutes(entry.endTime) - toMinutes(entry.startTime)).toBe(
+      entry.duration,
+    );
   });
 });

@@ -31,12 +31,55 @@ function isTechnicianCompatible(
   sample: Sample,
 ): boolean {
   return (
-    technician.speciality === sample.type || technician.speciality === "GENERAL"
+    technician.speciality.includes("GENERAL") ||
+    technician.speciality.some((s) => s === sample.type)
   );
 }
 
 function isEquipmentCompatible(equipment: Equipment, sample: Sample): boolean {
-  return equipment.type === sample.type;
+  return equipment.compatibleTypes.some(
+    (ct) =>
+      sample.analysisType.toLowerCase().includes(ct.toLowerCase()) ||
+      ct.toLowerCase().includes(sample.analysisType.toLowerCase()),
+  );
+}
+
+function adjustForLunchBreak(
+  candidateStart: number,
+  duration: number,
+  lunchBreak: string,
+): { start: number; lunchInterrupted: boolean } {
+  const [lunchStart, lunchEnd] = lunchBreak.split("-").map(toMinutes);
+
+  const candidateEnd = candidateStart + duration;
+
+  // Case 1: analysis finishes before lunch starts → no conflict
+  if (candidateEnd <= lunchStart) {
+    return { start: candidateStart, lunchInterrupted: false };
+  }
+
+  // Case 2: analysis starts after lunch ends → no conflict
+  if (candidateStart >= lunchEnd) {
+    return { start: candidateStart, lunchInterrupted: false };
+  }
+
+  // Case 3: overlap → push start to after lunch
+  return { start: lunchEnd, lunchInterrupted: false };
+}
+
+function isInMaintenance(
+  equip: Equipment,
+  candidateStart: number,
+  candidateEnd: number,
+): boolean {
+  if (!equip.maintenanceWindow) return false;
+
+  const [maintStart, maintEnd] = equip.maintenanceWindow
+    .split("-")
+    .map(toMinutes);
+
+  // Overlap check: analysis overlaps with maintenance window
+  return candidateStart < maintEnd && candidateEnd > maintStart;
 }
 
 export function planifyLab(data: LabData): PlanifyResult {
@@ -65,16 +108,22 @@ export function planifyLab(data: LabData): PlanifyResult {
 
   //Iterate over samples and assign resources
   const schedule: ScheduleEntry[] = [];
+  let lunchInterruptions = 0;
 
   for (const sample of sortedSamples) {
     let bestStartTime: number | null = null;
     let selectedTechnicianId: string | null = null;
     let selectedEquipmentId: string | null = null;
+    let selectedDuration: number | null = null;
 
     const sampleArrival = toMinutes(sample.arrivalTime);
 
     for (const technician of technicians) {
       if (!isTechnicianCompatible(technician, sample)) continue;
+
+      const adjustedDuration = Math.round(
+        sample.analysisTime / technician.efficiency,
+      );
 
       for (const equip of equipment) {
         if (!isEquipmentCompatible(equip, sample)) continue;
@@ -83,16 +132,26 @@ export function planifyLab(data: LabData): PlanifyResult {
         const technicianEnd = toMinutes(technician.endTime);
 
         const technicianAvailable = technicianAvailableAt.get(technician.id)!;
+
         const equipmentAvailable = equipmentAvailableAt.get(equip.id)!;
 
-        const candidateStart = Math.max(
+        let candidateStart = Math.max(
           sampleArrival,
           technicianAvailable,
           equipmentAvailable,
           technicianStart,
         );
 
-        const candidateEnd = candidateStart + sample.analysisTime;
+        const { start: adjustedStart } = adjustForLunchBreak(
+          candidateStart,
+          adjustedDuration,
+          technician.lunchBreak,
+        );
+        candidateStart = adjustedStart;
+
+        const candidateEnd = candidateStart + adjustedDuration;
+
+        if (isInMaintenance(equip, candidateStart, candidateEnd)) continue;
 
         if (candidateEnd > technicianEnd) continue;
 
@@ -100,15 +159,32 @@ export function planifyLab(data: LabData): PlanifyResult {
           bestStartTime = candidateStart;
           selectedTechnicianId = technician.id;
           selectedEquipmentId = equip.id;
+          selectedDuration = adjustedDuration;
         }
       }
     }
 
-    if (bestStartTime !== null && selectedTechnicianId && selectedEquipmentId) {
-      const endTime = bestStartTime + sample.analysisTime;
+    if (
+      bestStartTime !== null &&
+      selectedTechnicianId !== null &&
+      selectedEquipmentId !== null &&
+      selectedDuration !== null
+    ) {
+      const endTime = bestStartTime + selectedDuration;
 
       technicianAvailableAt.set(selectedTechnicianId, endTime);
-      equipmentAvailableAt.set(selectedEquipmentId, endTime);
+
+      const selectedEquip = equipment.find(
+        (e) => e.id === selectedEquipmentId,
+      )!;
+      equipmentAvailableAt.set(
+        selectedEquipmentId,
+        endTime + selectedEquip.cleaningTime,
+      );
+
+      const selectedTech = technicians.find(
+        (t) => t.id === selectedTechnicianId,
+      )!;
 
       schedule.push({
         sampleId: sample.id,
@@ -117,6 +193,10 @@ export function planifyLab(data: LabData): PlanifyResult {
         startTime: toHHMM(bestStartTime),
         endTime: toHHMM(endTime),
         priority: sample.priority,
+        duration: selectedDuration,
+        efficiency: selectedTech.efficiency,
+        analysisType: sample.analysisType,
+        cleaningRequired: selectedEquip.cleaningTime > 0,
       });
     }
   }
