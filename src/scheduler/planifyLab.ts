@@ -153,6 +153,15 @@ export function planifyLab(data: LabData): PlanifyResult {
         );
         candidateStart = adjustedStart;
 
+        if (equip.maintenanceWindow) {
+          const [maintStart, maintEnd] = equip.maintenanceWindow
+            .split("-")
+            .map(toMinutes);
+          if (candidateStart < maintEnd && candidateStart >= maintStart) {
+            candidateStart = maintEnd;
+          }
+        }
+
         const candidateEnd = candidateStart + adjustedDuration;
 
         if (isInMaintenance(equip, candidateStart, candidateEnd)) continue;
