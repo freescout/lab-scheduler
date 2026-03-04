@@ -1,0 +1,340 @@
+{
+  "laboratory": {
+    "date": "2025-03-15",
+    "processingDate": "2025-03-15",
+    "totalSamples": 20,
+    "algorithmVersion": "v1.0"
+  },
+  "schedule": [
+    {
+      "sampleId": "S001",
+      "technicianId": "TECH001",
+      "equipmentId": "EQ001",
+      "startTime": "08:30",
+      "endTime": "09:08",
+      "priority": "STAT",
+      "duration": 38,
+      "efficiency": 1.2,
+      "analysisType": "Numération complète",
+      "cleaningRequired": true,
+      "lunchBreak": "12:30-13:30"
+    },
+    {
+      "sampleId": "S008",
+      "technicianId": "TECH001",
+      "equipmentId": "EQ002",
+      "startTime": "09:15",
+      "endTime": "09:40",
+      "priority": "STAT",
+      "duration": 25,
+      "efficiency": 1.2,
+      "analysisType": "Troponine",
+      "cleaningRequired": true,
+      "lunchBreak": "12:30-13:30"
+    },
+    {
+      "sampleId": "S005",
+      "technicianId": "TECH004",
+      "equipmentId": "EQ001",
+      "startTime": "09:30",
+      "endTime": "09:56",
+      "priority": "URGENT",
+      "duration": 26,
+      "efficiency": 0.95,
+      "analysisType": "Coagulation",
+      "cleaningRequired": true,
+      "lunchBreak": "13:00-14:00"
+    },
+    {
+      "sampleId": "S002",
+      "technicianId": "TECH001",
+      "equipmentId": "EQ002",
+      "startTime": "09:55",
+      "endTime": "10:24",
+      "priority": "URGENT",
+      "duration": 29,
+      "efficiency": 1.2,
+      "analysisType": "Bilan hépatique",
+      "cleaningRequired": true,
+      "lunchBreak": "12:30-13:30"
+    },
+    {
+      "sampleId": "S012",
+      "technicianId": "TECH002",
+      "equipmentId": "EQ003",
+      "startTime": "10:45",
+      "endTime": "11:40",
+      "priority": "STAT",
+      "duration": 55,
+      "efficiency": 1.1,
+      "analysisType": "Hémoculture urgente",
+      "cleaningRequired": true,
+      "lunchBreak": "13:00-14:00"
+    },
+    {
+      "sampleId": "S011",
+      "technicianId": "TECH004",
+      "equipmentId": "EQ005",
+      "startTime": "11:00",
+      "endTime": "12:35",
+      "priority": "URGENT",
+      "duration": 95,
+      "efficiency": 0.95,
+      "analysisType": "Caryotype urgent",
+      "cleaningRequired": true,
+      "lunchBreak": "13:00-14:00"
+    },
+    {
+      "sampleId": "S009",
+      "technicianId": "TECH002",
+      "equipmentId": "EQ003",
+      "startTime": "12:00",
+      "endTime": "12:45",
+      "priority": "URGENT",
+      "duration": 45,
+      "efficiency": 1.1,
+      "analysisType": "ECBU",
+      "cleaningRequired": true,
+      "lunchBreak": "13:00-14:00"
+    },
+    {
+      "sampleId": "S016",
+      "technicianId": "TECH008",
+      "equipmentId": "EQ001",
+      "startTime": "12:30",
+      "endTime": "13:17",
+      "priority": "URGENT",
+      "duration": 47,
+      "efficiency": 0.85,
+      "analysisType": "Frottis sanguin",
+      "cleaningRequired": true,
+      "lunchBreak": "14:00-15:00"
+    },
+    {
+      "sampleId": "S017",
+      "technicianId": "TECH003",
+      "equipmentId": "EQ004",
+      "startTime": "13:20",
+      "endTime": "14:00",
+      "priority": "STAT",
+      "duration": 40,
+      "efficiency": 1,
+      "analysisType": "Allergènes critiques",
+      "cleaningRequired": true,
+      "lunchBreak": "12:00-13:00"
+    },
+    {
+      "sampleId": "S004",
+      "technicianId": "TECH007",
+      "equipmentId": "EQ001",
+      "startTime": "13:27",
+      "endTime": "13:51",
+      "priority": "ROUTINE",
+      "duration": 24,
+      "efficiency": 1.05,
+      "analysisType": "Hémogramme standard",
+      "cleaningRequired": true,
+      "lunchBreak": "12:00-13:00"
+    },
+    {
+      "sampleId": "S007",
+      "technicianId": "TECH004",
+      "equipmentId": "EQ005",
+      "startTime": "14:00",
+      "endTime": "16:06",
+      "priority": "ROUTINE",
+      "duration": 126,
+      "efficiency": 0.95,
+      "analysisType": "Conseil génétique",
+      "cleaningRequired": true,
+      "lunchBreak": "13:00-14:00"
+    },
+    {
+      "sampleId": "S014",
+      "technicianId": "TECH002",
+      "equipmentId": "EQ004",
+      "startTime": "14:12",
+      "endTime": "15:02",
+      "priority": "URGENT",
+      "duration": 50,
+      "efficiency": 1.1,
+      "analysisType": "Sérologie HIV",
+      "cleaningRequired": true,
+      "lunchBreak": "13:00-14:00"
+    },
+    {
+      "sampleId": "S018",
+      "technicianId": "TECH001",
+      "equipmentId": "EQ002",
+      "startTime": "14:15",
+      "endTime": "14:32",
+      "priority": "URGENT",
+      "duration": 17,
+      "efficiency": 1.2,
+      "analysisType": "Électrolytes",
+      "cleaningRequired": true,
+      "lunchBreak": "12:30-13:30"
+    },
+    {
+      "sampleId": "S003",
+      "technicianId": "TECH001",
+      "equipmentId": "EQ002",
+      "startTime": "14:47",
+      "endTime": "15:12",
+      "priority": "ROUTINE",
+      "duration": 25,
+      "efficiency": 1.2,
+      "analysisType": "Bilan lipidique",
+      "cleaningRequired": true,
+      "lunchBreak": "12:30-13:30"
+    },
+    {
+      "sampleId": "S006",
+      "technicianId": "TECH003",
+      "equipmentId": "EQ004",
+      "startTime": "15:14",
+      "endTime": "15:49",
+      "priority": "ROUTINE",
+      "duration": 35,
+      "efficiency": 1,
+      "analysisType": "Vaccination contrôle",
+      "cleaningRequired": true,
+      "lunchBreak": "12:00-13:00"
+    },
+    {
+      "sampleId": "S013",
+      "technicianId": "TECH001",
+      "equipmentId": "EQ002",
+      "startTime": "15:27",
+      "endTime": "15:48",
+      "priority": "ROUTINE",
+      "duration": 21,
+      "efficiency": 1.2,
+      "analysisType": "HbA1c",
+      "cleaningRequired": true,
+      "lunchBreak": "12:30-13:30"
+    },
+    {
+      "sampleId": "S020",
+      "technicianId": "TECH002",
+      "equipmentId": "EQ003",
+      "startTime": "15:30",
+      "endTime": "16:29",
+      "priority": "URGENT",
+      "duration": 59,
+      "efficiency": 1.1,
+      "analysisType": "Parasitologie",
+      "cleaningRequired": true,
+      "lunchBreak": "13:00-14:00"
+    },
+    {
+      "sampleId": "S015",
+      "technicianId": "TECH007",
+      "equipmentId": "EQ002",
+      "startTime": "16:03",
+      "endTime": "17:00",
+      "priority": "ROUTINE",
+      "duration": 57,
+      "efficiency": 1.05,
+      "analysisType": "Vitesse sédimentation",
+      "cleaningRequired": true,
+      "lunchBreak": "12:00-13:00"
+    },
+    {
+      "sampleId": "S019",
+      "technicianId": "TECH006",
+      "equipmentId": "EQ005",
+      "startTime": "16:36",
+      "endTime": "18:16",
+      "priority": "ROUTINE",
+      "duration": 100,
+      "efficiency": 0.9,
+      "analysisType": "Pharmacogénétique",
+      "cleaningRequired": true,
+      "lunchBreak": "13:30-14:30"
+    },
+    {
+      "sampleId": "S010",
+      "technicianId": "TECH008",
+      "equipmentId": "EQ003",
+      "startTime": "16:49",
+      "endTime": "17:42",
+      "priority": "ROUTINE",
+      "duration": 53,
+      "efficiency": 0.85,
+      "analysisType": "Prélèvement gorge",
+      "cleaningRequired": true,
+      "lunchBreak": "14:00-15:00"
+    }
+  ],
+  "metrics": {
+    "totalTime": 586,
+    "efficiency": 20.6,
+    "conflicts": 0,
+    "technicianUtilization": 22.4,
+    "averageWaitTime": {
+      "STAT": 0,
+      "URGENT": 40.3,
+      "ROUTINE": 244.8
+    },
+    "priorityRespectRate": 100,
+    "parallelAnalyses": 4,
+    "lunchInterruptions": 1
+  },
+  "metadata": {
+    "lunchBreaks": [
+      {
+        "technicianId": "TECH001",
+        "planned": "12:30-13:30",
+        "actual": "12:30-13:30",
+        "reason": "normal"
+      },
+      {
+        "technicianId": "TECH002",
+        "planned": "13:00-14:00",
+        "actual": "13:00-14:00",
+        "reason": "normal"
+      },
+      {
+        "technicianId": "TECH003",
+        "planned": "12:00-13:00",
+        "actual": "12:00-13:00",
+        "reason": "normal"
+      },
+      {
+        "technicianId": "TECH004",
+        "planned": "13:00-14:00",
+        "actual": "16:06-17:06",
+        "reason": "adjusted for optimization"
+      },
+      {
+        "technicianId": "TECH006",
+        "planned": "13:30-14:30",
+        "actual": "13:30-14:30",
+        "reason": "normal"
+      },
+      {
+        "technicianId": "TECH007",
+        "planned": "12:00-13:00",
+        "actual": "12:00-13:00",
+        "reason": "normal"
+      },
+      {
+        "technicianId": "TECH008",
+        "planned": "14:00-15:00",
+        "actual": "14:00-15:00",
+        "reason": "normal"
+      }
+    ],
+    "constraintsApplied": [
+      "priority_management",
+      "specialization_matching",
+      "lunch_breaks",
+      "equipment_compatibility",
+      "maintenance_avoidance",
+      "cleaning_delays",
+      "efficiency_coefficients",
+      "parallelism_optimization"
+    ]
+  }
+}
