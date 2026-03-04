@@ -121,6 +121,8 @@ export function planifyLab(data: LabData): PlanifyResult {
     }
   }
 
+  schedule.sort((a, b) => toMinutes(a.startTime) - toMinutes(b.startTime));
+
   // 5. Compute metrics
 
   let totalTime = 0;
@@ -138,7 +140,8 @@ export function planifyLab(data: LabData): PlanifyResult {
 
     totalTime = lastEnd - firstStart;
 
-    efficiency = totalTime > 0 ? (totalAnalysisTime / totalTime) * 100 : 0;
+    efficiency =
+      totalTime > 0 ? Math.min((totalAnalysisTime / totalTime) * 100, 100) : 0;
   }
 
   const conflicts = sortedSamples.length - schedule.length;
