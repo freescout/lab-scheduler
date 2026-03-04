@@ -13,6 +13,7 @@ import {
 } from "../models/types";
 import { computeAverage } from "../utils/math";
 import { toHHMM, toMinutes } from "../utils/time";
+import { validateLabData } from "./validator";
 
 // Lower number = higher priority
 const PRIORITY_WEIGHT: Record<Priority, number> = {
@@ -90,6 +91,13 @@ function isInMaintenance(
 
 export function planifyLab(data: LabData): PlanifyResult {
   const { samples, technicians, equipment } = data;
+
+  const validation = validateLabData(data);
+  if (!validation.valid) {
+    throw new Error(
+      `Données invalides:\n${validation.errors.map((e) => `- ${e.field}: ${e.message}`).join("\n")}`,
+    );
+  }
 
   // 1. Sort samples by priority and arrival time
 
