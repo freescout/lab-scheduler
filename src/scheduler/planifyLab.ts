@@ -317,6 +317,25 @@ export function planifyLab(data: LabData): PlanifyResult {
         ) / 10
       : 0;
 
+  // --- Parallel Analyses
+  const events: { time: number; delta: number }[] = [];
+
+  for (const entry of schedule) {
+    events.push({ time: toMinutes(entry.startTime), delta: +1 });
+    events.push({ time: toMinutes(entry.endTime), delta: -1 });
+  }
+
+  // Sort by time, ends before starts if same time
+  events.sort((a, b) => a.time - b.time || a.delta - b.delta);
+
+  let current = 0;
+  let parallelAnalyses = 0;
+
+  for (const event of events) {
+    current += event.delta;
+    parallelAnalyses = Math.max(parallelAnalyses, current);
+  }
+
   const metrics: Metrics = {
     totalTime,
     efficiency: Math.round(efficiency * 10) / 10,
@@ -324,7 +343,7 @@ export function planifyLab(data: LabData): PlanifyResult {
     technicianUtilization,
     averageWaitTime,
     priorityRespectRate,
-    parallelAnalyses: 0,
+    parallelAnalyses,
     lunchInterruptions,
   };
 
