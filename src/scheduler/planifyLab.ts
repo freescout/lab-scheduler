@@ -205,24 +205,60 @@ export function planifyLab(data: LabData): PlanifyResult {
 
   // 5. Compute metrics
 
-  let totalTime = 0;
-  let efficiency = 0;
-
-  if (schedule.length > 0) {
-    const totalAnalysisTime = schedule.reduce((sum, entry) => {
-      const duration = toMinutes(entry.endTime) - toMinutes(entry.startTime);
-      return sum + duration;
-    }, 0);
-
-    const firstStart = Math.min(...schedule.map((e) => toMinutes(e.startTime)));
-
-    const lastEnd = Math.max(...schedule.map((e) => toMinutes(e.endTime)));
-
-    totalTime = lastEnd - firstStart;
-
-    efficiency =
-      totalTime > 0 ? Math.min((totalAnalysisTime / totalTime) * 100, 100) : 0;
+  if (schedule.length === 0) {
+    return {
+      schedule,
+      metrics: {
+        totalTime: 0,
+        efficiency: 0,
+        conflicts: sortedSamples.length,
+        averageWaitTime: { STAT: 0, URGENT: 0, ROUTINE: 0 },
+        technicianUtilization: 0,
+        priorityRespectRate: 0,
+        parallelAnalyses: 0,
+        lunchInterruptions: 0,
+      },
+    };
   }
+
+  const earliestStart = Math.min(
+    ...schedule.map((e) => toMinutes(e.startTime)),
+  );
+
+  const latestEnd = Math.max(...schedule.map((e) => toMinutes(e.endTime)));
+
+  const totalTime = latestEnd - earliestStart;
+
+  const technicianWorkTime = new Map<string, number>();
+
+  for (const entry of schedule) {
+    const duration =
+      entry.duration ?? toMinutes(entry.endTime) - toMinutes(entry.startTime);
+
+    const current = technicianWorkTime.get(entry.technicianId) ?? 0;
+    technicianWorkTime.set(entry.technicianId, current + duration);
+  }
+
+  const totalWorkTime = [...technicianWorkTime.values()].reduce(
+    (sum, t) => sum + t,
+    0,
+  );
+
+  const totalShiftCapacity = technicians.reduce((sum, tech) => {
+    const shiftStart = toMinutes(tech.startTime);
+    const shiftEnd = toMinutes(tech.endTime);
+    return sum + (shiftEnd - shiftStart);
+  }, 0);
+
+  const technicianUtilization =
+    totalShiftCapacity > 0
+      ? Math.round((totalWorkTime / totalShiftCapacity) * 100 * 10) / 10
+      : 0;
+
+  const efficiency =
+    totalTime > 0
+      ? (totalWorkTime / (technicians.length * totalTime)) * 100
+      : 0;
 
   const conflicts = sortedSamples.length - schedule.length;
 
@@ -230,6 +266,11 @@ export function planifyLab(data: LabData): PlanifyResult {
     totalTime,
     efficiency: Math.round(efficiency * 10) / 10,
     conflicts,
+    technicianUtilization,
+    averageWaitTime: { STAT: 0, URGENT: 0, ROUTINE: 0 },
+    priorityRespectRate: 0,
+    parallelAnalyses: 0,
+    lunchInterruptions,
   };
 
   // 6. Return final result
